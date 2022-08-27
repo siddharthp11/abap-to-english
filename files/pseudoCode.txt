@@ -1,0 +1,62 @@
+Here is your translated code-.
+Create a REPORT named DEMO_ALV_REPORTING.
+    Declare a class named DEMO.
+        Start the PUBLIC Section.
+            Declare class method called MAIN.
+        Start the PRIVATE Section.
+            Declare class data called SCARR_TAB as a table of type SCARR.
+            Declare the following class methods- HANDLE_DOUBLE_CLICK for event DOUBLE_CLICK of reference CL_SALV_EVENTS_TABLE, with inputs 1)ROW 2)COLUMN,
+                                                 DETAIL with input CARRID of type SCARR-CARRID,
+                                                 BROWSER with input URL of type CSEQUENCE.
+    Start the event START-OF-SELECTION.
+        Call method (MAIN) on DEMO.
+    Implement a class named DEMO.
+        Declare a method named MAIN.
+            Call method INIT.
+            Declare the following- structured type FILTER with components CITYFROM of type SPFLI-CITYFROM, CITYTO of type SPFLI-CITYTO,
+                                   FILTER_TAB as a HASHED table of type FILTER, with a UNIQUE key called CITYFROM, with components CITYTO.
+            Try.
+                Call method (FACTORY with input R_SALV_TABLE = data called ALV, that changes T_TABLE = SCARR_TAB) on CL_SALV_TABLE.
+                Set data called EVENTS equal to result of instance method (GET_EVENT) on ALV.
+                Set event handler HANDLE_DOUBLE_CLICK for events.
+                Set data called COLUMNS equal to result of instance method (GET_COLUMNS) on ALV.
+                Set data called COL_TAB equal to result of instance method (GET) on COLUMNS.
+                Loop at table COL_TAB assign the content to COLUMN.
+                    Call method (SET_OUTPUT_LENGTH passing params 40) on R_COLUMN cast to COLUMN.
+                    If (COLUMNNAME cast to COLUMN = 'CARRNAME') or (COLUMNNAME cast to COLUMN = 'URL').
+                        Call method (SET_VISIBLE passing params 'X') on R_COLUMN cast to COLUMN.
+                    Else.
+                        Call method (SET_VISIBLE passing params ' ') on R_COLUMN cast to COLUMN.
+                    End of if block.
+                End of loop.
+                Call method (COO) on ALV.
+            Catch CX_SALV_MSG.
+                Call method (COO) on ALV.
+                Write message 'ALV DISPLAY not possible' like 'E'.
+            End of try block.
+        Declare a method named HANDLE_DOUBLE_CLICK.
+            Read table called SCARR_TAB at row number ROW, assign the content to SCARR.
+            If SY-SUBRC is not equal to 0.
+                RETURN.
+            End of if block.
+            If COLUMN = 'CARRNAME'.
+                Call method (DETAIL passing params CARRID cast to SCARR) on DEMO.
+            Else if COLUMN = 'URL'.
+                Call method (BROWSER passing params URL cast to SCARR) on DEMO.
+            End of if block.
+        Declare a method named DETAIL.
+            Declare the following- structured type ALV_LINE with components CARRID of type SPFLI-CARRID, CONNID of type SPFLI-CONNID, CITYFROM of type SPFLI-CITYFROM, CITYTO of type SPFLI-CITYTO.
+            Declare data called ALV_TAB as a table of type ALV_LINE.
+            Select CARRID, CONNID, CITYFROM, CITYTO from SPFLI, where CARRID = a table named CARRID, INTO CORRESPONDING FIELDS OF a table named ALV_TAB.
+            If SY-SUBRC is not equal to 0.
+                Write message E007.
+            End of if block.
+            Try.
+                Call method (FACTORY with input R_SALV_TABLE = data called ALV, that changes T_TABLE = ALV_TAB) on CL_SALV_TABLE.
+                Call method (SET_SCREEN_POPUP passing params START_COLUMN = 1, END_COLUMN = 60, START_LINE = 1, END_LINE = 12) on ALV.
+                Call method (COO) on ALV.
+            Catch CX_SALV_MSG.
+                Write message 'ALV display not possible' 'I', like 'E'.
+            End of try block.
+        Declare a method named BROWSER.
+            Call method (SHOW_URL with output URL = URL) on CL_ABAP_BROWSER.
